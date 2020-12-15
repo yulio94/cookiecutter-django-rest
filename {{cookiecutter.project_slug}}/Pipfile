@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+markdown = "*"
+flake8 = "*"
+ipdb = "*"
+
+[packages]
+# Django
+django = "*"
+djangorestframework = "*"
+# Filters
+django-filter = "*"
+# Passwords security
+argon2-cffi = "*"
+
+[requires]
+python_version = "3.8"
