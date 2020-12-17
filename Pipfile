@@ -7,15 +7,33 @@ verify_ssl = true
 markdown = "*"
 flake8 = "*"
 ipdb = "*"
+mypy = "*"
+pytest = "*"
+pytest-sugar = "*"
+pytest-django = "*"
+factory-boy = "*"
+coverage = "*"
 
 [packages]
+# Base
+pillow = "*"
+psycopg2-binary = "*"
+pytz = "*"
 # Django
 django = "*"
 djangorestframework = "*"
-# Filters
 django-filter = "*"
+django-environ = "*"
 # Passwords security
 argon2-cffi = "*"
+# Celery
+celery = "*"
+flower = "*"
+tornado = "*"
+redis = "*"
+django-redis = "*"
+# Production
+gunicorn = "*"
 
 [requires]
 python_version = "3.8"
