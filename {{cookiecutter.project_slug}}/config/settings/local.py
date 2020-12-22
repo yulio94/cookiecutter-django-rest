@@ -31,7 +31,7 @@ EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 
 # django-extensions
-INSTALLED_APPS += ['django_extensions']
+INSTALLED_APPS += []
 
 # Celery
 CELERY_TASK_ALWAYS_EAGER = True
