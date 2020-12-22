@@ -27,13 +27,13 @@ django-environ = "*"
 # Passwords security
 argon2-cffi = "*"
 # Celery
-celery = "*"
 flower = "*"
 tornado = "*"
 redis = "*"
 django-redis = "*"
 # Production
 gunicorn = "*"
+celery = "==4.4.6"
 
 [requires]
 python_version = "3.8"
