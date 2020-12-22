@@ -2,7 +2,7 @@
 
 import environ
 
-ROOT_DIR = environ.Path(__file__) - 4
+ROOT_DIR = environ.Path(__file__) - 3
 APPS_DIR = ROOT_DIR.path('apps')
 
 env = environ.Env()
@@ -134,12 +134,12 @@ EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='django.core.mail.backends.s
 # Admin
 ADMIN_URL = 'admin/'
 ADMINS = [
-    ("""Pablo Trinidad""", 'pablotrinidad@ciencias.unam.mx'),
+    ("""Julio Estrada""", 'me@julioestrada.dev'),
 ]
 MANAGERS = ADMINS
 
 # Celery
-INSTALLED_APPS += ['{{cookiecutter.project_slug}}.taskapp.celery.CeleryAppConfig']
+INSTALLED_APPS += ['taskapp.celery.CeleryAppConfig']
 if USE_TZ:
     CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = env('CELERY_BROKER_URL')
