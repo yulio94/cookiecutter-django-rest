@@ -1,1 +1,61 @@
 version: "3.7"
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: local_django
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    env_file:
+      - ./.envs/.local/django.env
+      - ./.envs/.local/postgresql.env
+    ports:
+      - 8000:8000
+    command: /start
+
+  db:
+    build:
+      context: .
+      dockerfile: ./compose/production/db/Dockerfile
+    image: local_postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.local/postgresql.env
+
+  redis:
+    image: redis:6.0.9-alpine
+
+  celeryworker:
+    <<: *django
+    image: local_celeryworker
+    depends_on:
+      - redis
+      - db
+    ports: [ ]
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: local_celerybeat
+    depends_on:
+      - redis
+      - db
+    ports: [ ]
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: local_flower
+    ports:
+      - 5555:5555
+    command: /start-flower
+
+volumes:
+  local_postgres_data: { }
+  local_postgres_data_backups: { }

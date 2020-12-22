@@ -119,5 +119,5 @@ media/
 !**/migrations
 !**/migrations/__init__.py
 
-# IDEs and Code editors
+# IDEs and Code editors configuration
 .idea

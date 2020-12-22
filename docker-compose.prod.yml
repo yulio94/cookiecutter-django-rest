@@ -1,1 +1,66 @@
 version: "3.7"
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: production_django
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./.envs/.production/django.env
+      - ./.envs/.production/postgresql.env
+    command: /start
+
+  db:
+    build:
+      context: .
+      dockerfile: ./compose/production/db/Dockerfile
+    image: production_postgres
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.production/postgresql.env
+
+  caddy:
+    build:
+      context: .
+      dockerfile: ./compose/production/caddy/Dockerfile
+    image: production_caddy
+    depends_on:
+      - django
+    volumes:
+      - production_caddy:/root/.caddy
+    env_file:
+      - ./.envs/.production/caddy.env
+    ports:
+      - 0.0.0.0:80:80
+      - 0.0.0.0:433:443
+
+  redis:
+    image: redis:6.0.9-alpine
+
+  celeryworker:
+    <<: *django
+    image: production_celeryworker
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: production_celerybeat
+    command: /start-celerybeat
+
+  flower:
+    <<: *django
+    image: production_flower
+    ports:
+      - 5555:5555
+    command: /start-flower
+
+volumes:
+  production_caddy: { }
+  production_postgres_data: { }
+  production_postgres_data_backups: { }
