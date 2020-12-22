@@ -22,7 +22,7 @@ RUN pip install pipenv
 COPY ["Pipfile", "Pipfile.lock", "./"]
 
 # Install project dependencies
-RUN pipenv install
+RUN pipenv install --system
 
 
 COPY ./compose/local/django/entrypoint /entrypoint
