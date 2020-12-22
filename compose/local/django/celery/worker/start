@@ -3,5 +3,6 @@
 set -o errexit
 set -o nounset
 
+cd \{\{cookiecutter.project_slug\}\}
 
-celery -A {{cookiecutter.project_slug}}.taskapp worker -l INFO
+celery -A taskapp worker -l INFO

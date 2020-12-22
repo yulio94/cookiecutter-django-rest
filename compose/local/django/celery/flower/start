@@ -3,8 +3,9 @@
 set -o errexit
 set -o nounset
 
+cd \{\{cookiecutter.project_slug\}\}
 
 celery flower \
-    --app={{cookiecutter.project_slug}}.taskapp \
+    --app=taskapp \
     --broker="${CELERY_BROKER_URL}" \
     --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
