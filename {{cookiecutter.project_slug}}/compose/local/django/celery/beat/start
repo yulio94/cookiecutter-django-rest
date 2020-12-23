@@ -6,6 +6,4 @@ set -o nounset
 
 rm -f './celerybeat.pid'
 
-cd \{\{cookiecutter.project_slug\}\}
-
-celery -A taskapp beat -l INFO
+celery -A {{cookiecutter.project_slug}}.taskapp beat -l INFO
