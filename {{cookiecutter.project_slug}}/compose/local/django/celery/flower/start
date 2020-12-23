@@ -3,8 +3,6 @@
 set -o errexit
 set -o nounset
 
-cd \{\{cookiecutter.project_slug\}\}
-
 celery {{cookiecutter.project_slug}}.flower \
     --app=taskapp \
     --broker="${CELERY_BROKER_URL}" \
