@@ -3,7 +3,7 @@
 set -o errexit
 set -o nounset
 
-celery {{cookiecutter.project_slug}}.flower \
-    --app=taskapp \
+celery flower \
+    --app={{cookiecutter.project_slug}}.taskapp \
     --broker="${CELERY_BROKER_URL}" \
     --basic_auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
