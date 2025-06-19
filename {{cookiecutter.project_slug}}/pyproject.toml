@@ -1,0 +1,54 @@
+[project]
+name = "{{cookiecutter.project_slug}}"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "argon2-cffi>=25.1.0",
+    "celery>=5.5.3",
+    "django>=5.2.3",
+    "django-filter>=25.1",
+    "django-redis>=5.4.0",
+    "djangorestframework>=3.16.0",
+    "pillow>=11.2.1",
+    "psycopg[c]>=3.2.9",
+    "redis[hiredis]>=6.2.0",
+    "python-decouple>=3.8",
+    "prometheus-client>=0.22.1",
+    "drf-spectacular>=0.28.0",
+    "django-storages>=1.14.6",
+    "whitenoise>=6.9.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "markdown>=3.8",
+    "mypy>=1.16.0",
+    "pytest>=8.4.0",
+    "pytest-cov>=6.2.1",
+    "pytest-django>=4.11.1",
+    "pytest-sugar>=1.0.0",
+    "ruff>=0.11.13",
+    "types-redis>=4.6.0.20241004",
+    "types-requests>=2.32.4.20250611",
+    "model-bakery>=1.20.5",
+    "pre-commit>=4.2.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+select = ["E", "F", "B"]
+exclude = ["migrations"]
+
+[tool.mypy]
+python_version = 3.13
+ignore_missing_imports = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+django_find_project = false
+DJANGO_SETTINGS_MODULE = "{{cookiecutter.project_slug}}.settings.test"
+python_files = ["test_*.py", "*_test.py"]
+addopts = "--reuse-db --nomigrations -p no:warnings"
