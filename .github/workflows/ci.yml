@@ -36,6 +36,7 @@ jobs:
           uv lock --check
           uv sync
           uv run ruff check
+          uv run mypy config manage.py
           uv run python manage.py check --deploy --fail-level WARNING --settings=config.settings.production
           cp .envs/.local/django.env.example .envs/.local/django.env
           cp .envs/.local/postgresql.env.example .envs/.local/postgresql.env
