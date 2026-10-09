@@ -1,7 +1,9 @@
 """Development settings."""
 
-from .base import *  # NOQA
 from decouple import config
+
+from .base import *  # noqa: F403
+from .base import TEMPLATES
 
 # Base
 DEBUG = True
@@ -34,9 +36,6 @@ EMAIL_BACKEND = config(
 )
 EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
-
-# django-extensions
-INSTALLED_APPS += []
 
 # Celery
 CELERY_TASK_ALWAYS_EAGER = True

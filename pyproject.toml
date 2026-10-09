@@ -1,6 +1,9 @@
 [project]
 name = "cookiecutter-django-rest"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.13"
+description = "Cookiecutter template for a production-ready Django REST framework project."
+requires-python = ">=3.14"
 dependencies = []
+
+[dependency-groups]
+dev = ["cookiecutter>=2.6.0"]

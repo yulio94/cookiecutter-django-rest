@@ -1,9 +1,7 @@
 #!/bin/sh
 
 set -o errexit
-set -o pipefail
 set -o nounset
 
-cd \{\{cookiecutter.project_slug\}\}
-
-celery -A taskapp beat -l INFO
+rm -f ./celerybeat.pid
+exec celery -A config beat -l INFO

@@ -1,54 +1,26 @@
-FROM python:3.6-alpine
+FROM python:3.14-slim
 
-ENV PYTHONUNBUFFERED 1
+COPY --from=ghcr.io/astral-sh/uv:0.13.0 /uv /bin/
 
-RUN apk update \
-  # psycopg2 dependencies
-  && apk add --virtual build-deps gcc python3-dev musl-dev \
-  && apk add postgresql-dev \
-  # Pillow dependencies
-  && apk add jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev \
-  # CFFI dependencies
-  && apk add libffi-dev py-cffi
+ENV PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/venv \
+    PATH="/venv/bin:$PATH"
 
-RUN addgroup -S django \
-    && adduser -S -G django django
-
-# Requirements are installed here to ensure they will be cached.
-COPY ./requirements /requirements
-RUN pip install --no-cache-dir -r /requirements/production.txt \
-    && rm -rf /requirements
-
-COPY ./compose/production/django/entrypoint /entrypoint
-RUN sed -i 's/\r//' /entrypoint
-RUN chmod +x /entrypoint
-RUN chown django /entrypoint
-
-COPY ./compose/production/django/start /start
-RUN sed -i 's/\r//' /start
-RUN chmod +x /start
-RUN chown django /start
-
-COPY ./compose/production/django/celery/worker/start /start-celeryworker
-RUN sed -i 's/\r//' /start-celeryworker
-RUN chmod +x /start-celeryworker
-RUN chown django /start-celeryworker
-
-COPY ./compose/production/django/celery/beat/start /start-celerybeat
-RUN sed -i 's/\r//' /start-celerybeat
-RUN chmod +x /start-celerybeat
-RUN chown django /start-celerybeat
-
-COPY ./compose/production/django/celery/flower/start /start-flower
-RUN sed -i 's/\r//' /start-flower
-RUN chmod +x /start-flower
-
-COPY . /app
-
-RUN chown -R django /app
-
-USER django
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends gettext \
+  && rm -rf /var/lib/apt/lists/* \
+  && useradd --system django
 
 WORKDIR /app
 
-ENTRYPOINT ["/entrypoint"]
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev
+
+COPY --chmod=755 ./compose/production/django/start /start
+COPY --chmod=755 ./compose/production/django/celery/worker/start /start-celeryworker
+COPY --chmod=755 ./compose/production/django/celery/beat/start /start-celerybeat
+
+COPY --chown=django . /app
+
+USER django

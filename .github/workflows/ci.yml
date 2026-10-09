@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: project
+      POSTGRES_USER: project
+      POSTGRES_PASSWORD: project
+      REDIS_URL: redis://localhost:6379/0
+      DJANGO_SECRET_KEY: ci-only-secret-key-that-is-long-enough-for-check-deploy-0123456789
+      DJANGO_ALLOWED_HOSTS: example.com
+      DJANGO_ADMIN_URL: admin/
+      DJANGO_DEFAULT_FROM_EMAIL: noreply@example.com
+      DJANGO_EMAIL_SUBJECT_PREFIX: "[project]"
+      DJANGO_AWS_STORAGE_BUCKET_NAME: bucket
+      MAILGUN_API_KEY: key
+      MAILGUN_DOMAIN: example.com
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+      - name: Render template
+        run: uvx cookiecutter . --no-input -o "$RUNNER_TEMP"
+      - name: Check rendered project
+        working-directory: ${{ runner.temp }}/project
+        run: |
+          ! grep -rn --exclude=uv.lock -e '{{' -e '\\{\\{' .
+          uv lock --check
+          uv sync
+          uv run ruff check
+          uv run mypy config manage.py
+          uv run python manage.py check --deploy --fail-level WARNING --settings=config.settings.production
+          cp .envs/.local/django.env.example .envs/.local/django.env
+          cp .envs/.local/postgresql.env.example .envs/.local/postgresql.env
+          docker compose -f docker-compose.local.yml build
+          docker compose -f docker-compose.prod.yml build django

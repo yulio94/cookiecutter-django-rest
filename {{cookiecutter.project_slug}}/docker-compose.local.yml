@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   django: &django
     build:
@@ -7,7 +5,10 @@ services:
       dockerfile: ./compose/local/django/Dockerfile
     image: local_django
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     volumes:
       - .:/app
     env_file:
@@ -27,35 +28,26 @@ services:
       - local_postgres_data_backups:/backups
     env_file:
       - ./.envs/.local/postgresql.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 2s
+      retries: 15
 
   redis:
-    image: redis:6.0.9-alpine
+    image: redis:8-alpine
 
   celeryworker:
     <<: *django
     image: local_celeryworker
-    depends_on:
-      - redis
-      - db
-    ports: [ ]
+    ports: []
     command: /start-celeryworker
 
   celerybeat:
     <<: *django
     image: local_celerybeat
-    depends_on:
-      - redis
-      - db
-    ports: [ ]
+    ports: []
     command: /start-celerybeat
 
-  flower:
-    <<: *django
-    image: local_flower
-    ports:
-      - 5555:5555
-    command: /start-flower
-
 volumes:
-  local_postgres_data: { }
-  local_postgres_data_backups: { }
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
