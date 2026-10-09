@@ -1,37 +1,35 @@
 # Cookiecutter Django Rest
-Do you need a ready to production Django rest framework template?. It's our first objective with this
-repository.
+A Django REST framework template that is ready for production.
 
-This repository use [cookiecutter](https://cookiecutter.readthedocs.io/en/1.7.2/index.html) for provide you a quick start
-with Django rest framework.
+It uses [cookiecutter](https://cookiecutter.readthedocs.io/) to give you a quick start with Django REST framework.
 
 ## Features
-* Python 3.8+
-* Django 3.0+
-* PotsgreSQL 13.1+
-* Local development fully dockerized via docker-compose.
-* Django rest framework.
-* Optimized local, test and production settings.
-* Multi-task, async tasks and task monitoring.
-    * [Celery 4.4.6](https://docs.celeryproject.org/en/stable/)
-    * [Redis 6.0.9](https://redis.io/) 
-    * [Flower 1.0.0](https://flower.readthedocs.io/en/latest/index.html#)
-* Testing with unittest or pytest.
-* Dependencies work with [pipenv](https://pipenv.pypa.io/en/latest/).
+* Python 3.14, Django 5.2 LTS, Django REST framework.
+* PostgreSQL 17.
+* Dependencies managed with [uv](https://docs.astral.sh/uv/), locked in `uv.lock`.
+* Local development fully dockerized with Docker Compose.
+* Separate local, test and production settings.
+* Async and scheduled tasks with [Celery](https://docs.celeryq.dev/) and [Redis](https://redis.io/) 8.
+* OpenAPI schema and Swagger UI at `/api/docs/` via drf-spectacular.
+* Production behind [Caddy](https://caddyserver.com/) 2 with automatic HTTPS, Gunicorn, WhiteNoise for static files, S3 for media and Mailgun for email.
+* pytest, ruff, mypy and pre-commit.
 
-And more incoming...
+## How to start
+With uv installed, scaffold your project:
+```
+uvx cookiecutter gh:yulio94/cookiecutter-django-rest
+```
 
-## How start
-You need to install [cookiecutter](https://cookiecutter.readthedocs.io/en/1.7.2/installation.html), one way to do that is:
+Then, inside the new project:
 ```
-pip install cookiecutter
+cp .envs/.local/django.env.example .envs/.local/django.env
+cp .envs/.local/postgresql.env.example .envs/.local/postgresql.env
+docker compose -f docker-compose.local.yml up --build
 ```
-See more ways to install in [cookiecutter installation](https://cookiecutter.readthedocs.io/en/1.7.2/installation.html).
+The API docs are at http://localhost:8000/api/docs/.
 
-Then, scaffold your project:
-```
-cookiecutter gh:yulio94/cookiecutter-django-rest 
-```
+For production, fill in the files under `.envs/.production/` from their `.example` files and run `docker compose -f docker-compose.prod.yml up --build -d`.
+
 An example in [cride repository](https://github.com/yulio94/cride).
 
 ### Thanks to:
@@ -39,4 +37,3 @@ An example in [cride repository](https://github.com/yulio94/cride).
 * @pydanny
 * @agconti
 * @platzi
-

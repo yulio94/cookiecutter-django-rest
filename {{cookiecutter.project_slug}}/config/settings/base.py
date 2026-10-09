@@ -1,6 +1,8 @@
 """Base settings to build other settings files upon."""
 
 from pathlib import Path
+from typing import Any
+
 from decouple import config
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -12,16 +14,22 @@ DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 # Language and timezone
 TIME_ZONE = "America/Guatemala"
 LANGUAGE_CODE = "en-us"
-SITE_ID = 1
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 # DATABASES
 DATABASES = {
-    "default": config("DATABASE_URL"),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": config("POSTGRES_HOST"),
+        "PORT": config("POSTGRES_PORT", default=5432, cast=int),
+        "NAME": config("POSTGRES_DB"),
+        "USER": config("POSTGRES_USER"),
+        "PASSWORD": config("POSTGRES_PASSWORD"),
+        "ATOMIC_REQUESTS": True,
+    }
 }
-DATABASES["default"]["ATOMIC_REQUESTS"] = True
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # URLs
 ROOT_URLCONF = "config.urls"
@@ -39,8 +47,12 @@ DJANGO_APPS = [
     "django.contrib.admin",
 ]
 
-THIRD_PARTY_APPS = []
-LOCAL_APPS = []
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "django_filters",
+    "drf_spectacular",
+]
+LOCAL_APPS: list[str] = []
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 # Passwords
@@ -80,20 +92,13 @@ MIDDLEWARE = [
 # Static files
 STATIC_ROOT = str(ROOT_DIR / "staticfiles")
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [
-    str(APPS_DIR / "static"),
-]
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
 
 # Media
 MEDIA_ROOT = str(APPS_DIR / "media")
 MEDIA_URL = "/media/"
 
 # Templates
-TEMPLATES = [
+TEMPLATES: list[dict[str, Any]] = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
@@ -122,7 +127,6 @@ TEMPLATES = [
 # Security
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
-SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "DENY"
 
 # Email
@@ -132,19 +136,21 @@ EMAIL_BACKEND = config(
 
 # Admin
 ADMIN_URL = "admin/"
-ADMINS = []
+ADMINS: list[tuple[str, str]] = []
 MANAGERS = ADMINS
 
+# Django REST framework
+REST_FRAMEWORK = {
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
 # Celery
-INSTALLED_APPS += ["{{cookiecutter.project_slug}}.taskapp.celery.CeleryAppConfig"]
-
-if USE_TZ:
-    CELERY_TIMEZONE = TIME_ZONE
-
-CELERY_BROKER_URL = config("CELERY_BROKER_URL")
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BROKER_URL = config("REDIS_URL")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-CELERYD_TASK_TIME_LIMIT = 5 * 60
-CELERYD_TASK_SOFT_TIME_LIMIT = 60
+CELERY_TASK_TIME_LIMIT = 5 * 60
+CELERY_TASK_SOFT_TIME_LIMIT = 60

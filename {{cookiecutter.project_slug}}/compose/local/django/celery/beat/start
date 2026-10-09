@@ -3,7 +3,5 @@
 set -o errexit
 set -o nounset
 
-
-rm -f './celerybeat.pid'
-
-celery -A {{cookiecutter.project_slug}}.taskapp beat -l INFO
+rm -f ./celerybeat.pid
+exec celery -A config beat -l INFO

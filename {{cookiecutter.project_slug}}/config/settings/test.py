@@ -4,8 +4,10 @@ Testing settings.
 With these settings, tests run faster.
 """
 
-from .base import *
 from decouple import config
+
+from .base import *  # noqa: F403
+from .base import TEMPLATES
 
 # Base
 DEBUG = False

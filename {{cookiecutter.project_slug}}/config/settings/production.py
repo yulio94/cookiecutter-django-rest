@@ -1,15 +1,15 @@
 """Production settings."""
 
-from .base import *  # NOQA
-from decouple import config
+from decouple import Csv, config
 
-SECRET_KEY = config("SECRET_KEY")
-ALLOW_HOSTS = config("ALLOW_HOSTS", cast=list)
+from .base import *  # noqa: F403
+from .base import DATABASES, INSTALLED_APPS, MIDDLEWARE, TEMPLATES
+
+SECRET_KEY = config("DJANGO_SECRET_KEY")
+ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS", cast=Csv())
 
 # Database
-DATABASES["default"] = config("DATABASE_URL")
-DATABASES["default"]["ATOMIC_REQUESTS"] = True
-DATABASES["default"]["CONN_MAX_AGE"] = config("CONN_MAX_AGE", default=60, cast=int)  # NOQA
+DATABASES["default"]["CONN_MAX_AGE"] = config("CONN_MAX_AGE", default=60, cast=int)
 
 # Cache
 CACHES = {
@@ -46,15 +46,16 @@ AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": f"max-age={_AWS_EXPIRY}, s-maxage={_AWS_EXPIRY}, must-revalidate",
 }
 
-# Media
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+STORAGES = {
+    "default": {"BACKEND": "storages.backends.s3.S3Storage"},
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    },
+}
 MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
 
-# Static files
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 # Templates
-TEMPLATES[0]["OPTIONS"]["loaders"] = [  # noqa F405
+TEMPLATES[0]["OPTIONS"]["loaders"] = [
     (
         "django.template.loaders.cached.Loader",
         [
@@ -73,18 +74,15 @@ EMAIL_SUBJECT_PREFIX = config("DJANGO_EMAIL_SUBJECT_PREFIX")
 ADMIN_URL = config("DJANGO_ADMIN_URL")
 
 # Anymail (Mailgun)
-INSTALLED_APPS += ["anymail"]  # noqa F405
+INSTALLED_APPS += ["anymail"]
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 ANYMAIL = {
     "MAILGUN_API_KEY": config("MAILGUN_API_KEY"),
     "MAILGUN_SENDER_DOMAIN": config("MAILGUN_DOMAIN"),
 }
 
-# Gunicorn
-INSTALLED_APPS += ["gunicorn"]  # noqa F405
-
 # WhiteNoise
-MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")  # noqa F405
+MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 LOGGING = {
     "version": 1,
